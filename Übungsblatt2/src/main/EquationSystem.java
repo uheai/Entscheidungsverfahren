@@ -4,16 +4,21 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-
-import javax.swing.plaf.synth.SynthSeparatorUI;
 
 public class EquationSystem {
 
 	private Set<Equation> eqSystem;
 	private int numOfEquations;
 	private int numOfVars;
+	
+	/**
+	 * entry x -> y means x is substitution for y
+	 */
+	private Map<Integer, Variable> substitutions;
 
 	public EquationSystem(String path) throws IOException, UnsolvableException {
 		File file = new File(path);
@@ -31,6 +36,7 @@ public class EquationSystem {
 		numOfVars = Integer.parseInt(description[1]);
 
 		eqSystem = new HashSet<>(numOfEquations);
+		substitutions = new HashMap<>(numOfVars);
 
 		line = reader.readLine();
 
