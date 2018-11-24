@@ -16,9 +16,20 @@ public class Main {
 		} catch (FileNotFoundException e) {
 			System.err.print("Could not read file");
 			System.exit(-1);
+		} catch (UnsolvableException e) {
+			System.out.println("Equation system not solvable");
+			System.exit(-1);
 		}
 		
 		system.printEquationSystem();
+		
+		System.exit(0);
+		Solver solver = new Solver(system);
+		try {
+			solver.solve();
+		} catch (UnsolvableException e) {
+			System.err.println("System not solvable");
+		}
 		
 	}
 	
