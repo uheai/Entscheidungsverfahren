@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,19 +15,25 @@ public class EquationSystem {
 	private Set<Equation> eqSystem;
 	private int numOfEquations;
 	private int numOfVars;
-	
-	/**
-	 * entry x -> y means x is substitution for y
-	 */
-	private Map<Integer, Variable> substitutions;
 
+	/**
+	 * for creation of new variables. This index is not used yet
+	 */
+	private int nextFreeIndex;
+
+	/**
+	 * maps indices to equations which define them, i.e. equation has to be resolved for variable
+	 * to get substitution.
+	 * So substitution x4 = x1 + x3 - 3 is represented as 4 -> x1 - x4 + x3 = 3
+	 */
+	private Map<Integer, Equation> substitutions;
+	
 	public EquationSystem(String path) throws IOException, UnsolvableException {
 		File file = new File(path);
 		System.out.println(System.getProperty("user.dir"));
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		readFile(reader);
 		reader.close();
-
 	}
 
 	private void readFile(BufferedReader reader) throws IOException, UnsolvableException {
@@ -35,16 +42,17 @@ public class EquationSystem {
 		numOfEquations = Integer.parseInt(description[0]);
 		numOfVars = Integer.parseInt(description[1]);
 
+		nextFreeIndex = numOfVars + 1;
+
 		eqSystem = new HashSet<>(numOfEquations);
 		substitutions = new HashMap<>(numOfVars);
 
 		line = reader.readLine();
 
-		int eqNumber = 0;
-
 		while (line != null) {
+
 			int[] equation = new int[numOfVars + 1];
-			
+
 			String[] values = line.split(" ");
 			int num = Integer.parseInt(values[0]);
 
@@ -62,18 +70,41 @@ public class EquationSystem {
 
 			normalize(equation);
 
-			eqSystem.add(new Equation(equation));
-			
-			eqNumber++;
+			if (num == 2) {
+				// set substitution
+				for (int j = 0; j < numOfVars; j++) {
+					int coeff = equation[j];
+					if (coeff != 0) {
+						Equation eq = new Equation(j + 1, coeff, equation[numOfVars]);
+						addSubstitution(j + 1, eq);
+						break;
+					}
+				}
+			} else {
+				eqSystem.add(new Equation(equation));
+			}
+
 			line = reader.readLine();
+		}
+		
+		if (!substitutions.isEmpty()) {
+			substitueSolutions();
+		}
+	}
+	
+	private void substitueSolutions() throws UnsolvableException {
+		for (int index : substitutions.keySet()) {
+			for (Equation eq : eqSystem) {
+				eq.substitute(substitutions.get(index), index);
+			}
 		}
 	}
 
 	private void normalize(int[] equation) throws UnsolvableException {
-		
+
 		int i = 0;
 		int gcd = equation[0];
-		
+
 		int rightSide = equation[equation.length - 1];
 
 		System.out.println("got equation");
@@ -93,7 +124,7 @@ public class EquationSystem {
 		}
 
 		i++;
-		for (; i < equation.length; i++) {
+		for (; i < equation.length - 1; i++) {
 			int num = equation[i];
 			if (num == 0) {
 				continue;
@@ -115,15 +146,12 @@ public class EquationSystem {
 				equation[j] /= gcd;
 			}
 
-			equation[equation.length - 1] /= gcd;
 
-		
-		
-		System.out.println("normalized equation");
-		printEquation(equation);
+			System.out.println("normalized equation");
+			printEquation(equation);
 		}
 		System.out.println("---------\n");
-		
+
 	}
 
 	/**
@@ -145,11 +173,15 @@ public class EquationSystem {
 		return Math.abs(a);
 	}
 
+	public void addSubstitution(int index, Equation eq) {
+		substitutions.put(index, eq);
+	}
+	
 	public void printEquationSystem() {
 		StringBuilder builder = new StringBuilder();
 
 		// first line
-		builder.append(numOfEquations + " " + numOfVars + "\n");
+		//builder.append(numOfEquations + " " + numOfVars + "\n");
 
 		for (Equation eqation : eqSystem) {
 			builder.append(eqation.toString()).append("\n");
@@ -157,6 +189,7 @@ public class EquationSystem {
 		}
 		System.out.println(builder.toString());
 	}
+	
 
 	public void printEquation(int[] equation) {
 		StringBuilder builder = new StringBuilder();
@@ -170,4 +203,9 @@ public class EquationSystem {
 
 		System.out.println(builder.toString());
 	}
+	
+	public Set<Equation> getEqSystem() {
+		return eqSystem;
+	}
+
 }

@@ -23,7 +23,6 @@ public class Main {
 		
 		system.printEquationSystem();
 		
-		System.exit(0);
 		Solver solver = new Solver(system);
 		try {
 			solver.solve();
