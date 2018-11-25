@@ -4,15 +4,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class EquationSystem {
 
-	private Set<Equation> eqSystem;
+	private List<Equation> eqSystem;
 	private int numOfEquations;
 	private int numOfVars;
 
@@ -44,7 +46,7 @@ public class EquationSystem {
 
 		nextFreeIndex = numOfVars + 1;
 
-		eqSystem = new HashSet<>(numOfEquations);
+		eqSystem = new ArrayList<>(numOfEquations);
 		substitutions = new HashMap<>(numOfVars);
 
 		line = reader.readLine();
@@ -177,6 +179,13 @@ public class EquationSystem {
 		substitutions.put(index, eq);
 	}
 	
+	public void addEquationWithNewVar(int index, int m, Equation eq) {
+		eq.addVariable(nextFreeIndex, -m);
+		substitutions.put(index, eq);
+		
+		nextFreeIndex++;
+	}
+	
 	public void printEquationSystem() {
 		StringBuilder builder = new StringBuilder();
 
@@ -204,8 +213,20 @@ public class EquationSystem {
 		System.out.println(builder.toString());
 	}
 	
-	public Set<Equation> getEqSystem() {
+	public List<Equation> getEqSystem() {
 		return eqSystem;
+	}
+	
+	public Map<Integer, Equation> getSubstitutions() {
+		return substitutions;
+	}
+	
+	public int getNumOfVars() {
+		return numOfVars;
+	}
+	
+	public int getNextFreeIndex() {
+		return nextFreeIndex;
 	}
 
 }

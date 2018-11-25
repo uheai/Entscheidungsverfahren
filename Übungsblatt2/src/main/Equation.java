@@ -1,6 +1,7 @@
 package main;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class Equation {
@@ -27,6 +28,10 @@ public class Equation {
 		}
 		
 		rhs = equation[equation.length - 1];
+	}
+	
+	public void setRhs(int rhs) {
+		this.rhs = rhs;
 	}
 	
 	/**
@@ -72,7 +77,10 @@ public class Equation {
 			return; //equation does not change
 		}
 		
-		int coeff = vars.get(index);
+		int sign = subst.getVars().get(index);
+		
+		assert Math.abs(sign) == 1;
+		int coeff = vars.get(index) * sign;
 		vars.remove(index);
 		
 		//add coefficients for left hand side
@@ -92,6 +100,28 @@ public class Equation {
 		
 		//add value to right hand side
 		rhs -= coeff * subst.rhs;
+		
+		normalize();
+	}
+	
+	/**
+	 * divide all values gcd of coefficients
+	 */
+	public void normalize() {
+		Iterator<Integer> it = vars.values().iterator();
+		int gcd = it.next();
+		
+		while (it.hasNext()) {
+			gcd = computeGCD(gcd, it.next());
+		}
+		
+		for (int index : vars.keySet()) {
+			int value = vars.get(index);
+			vars.put(index, value / gcd);
+		}
+		
+		rhs /= gcd;
+		
 	}
 	
 	@Override
@@ -116,5 +146,24 @@ public class Equation {
 	
 	public int getRhs() {
 		return rhs;
+	}
+	
+	/**
+	 * returns greatest common divisor of two non-zero numbers
+	 * 
+	 * @param a has to be non-zero
+	 * @param b has to be non-zero
+	 * @return ggT of a and b
+	 */
+	private int computeGCD(int a, int b) {
+		int h = 0;
+
+		do {
+			h = a % b;
+			a = b;
+			b = h;
+		} while (b != 0);
+
+		return Math.abs(a);
 	}
 }
