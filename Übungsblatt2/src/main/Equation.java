@@ -54,6 +54,9 @@ public class Equation {
 	public void addVariable(int index, int coeff) {
 		assert !vars.containsKey(index) : "variable already declared";
 		
+		if (coeff == 0) {
+			return; //nothing to do
+		}
 		vars.put(index, coeff);
 	}
 	
@@ -71,8 +74,9 @@ public class Equation {
 	 * this equation
 	 * @param subst substitution
 	 * @param index variable
+	 * @throws UnsolvableException 
 	 */
-	public void substitute(Equation subst, int index) {
+	public void substitute(Equation subst, int index) throws UnsolvableException {
 		if (!vars.containsKey(index)) {
 			return; //equation does not change
 		}
@@ -101,7 +105,13 @@ public class Equation {
 		//add value to right hand side
 		rhs -= coeff * subst.rhs;
 		
+		if (vars.isEmpty()) {
+			if (rhs != 0) {
+				throw new UnsolvableException();
+			}
+		} else {
 		normalize();
+		}
 	}
 	
 	/**
@@ -126,6 +136,9 @@ public class Equation {
 	
 	@Override
 	public String toString() {
+		if (vars.isEmpty()) {
+			return "0 = 0";
+		}
 		StringBuilder builder = new StringBuilder();
 		vars.forEach((Integer index, Integer coeff) -> {
 			if (coeff != 0) {

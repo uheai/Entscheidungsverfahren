@@ -1,6 +1,5 @@
 package main;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -8,49 +7,47 @@ import java.util.Set;
 public class Solver {
 
 	private EquationSystem system;
-	private Equation eq;
 
 	public Solver(EquationSystem system) {
 		this.system = system;
 	}
 
-	public void solve() throws UnsolvableException {
+	public int[] solve() throws UnsolvableException {
 		while (system.getEqSystem().size() > 0) {
-
+			
+			
 			// reduce equation system
 			boolean changed = false;
 			do {
 				changed = reduce();
 			} while (changed);
 
+			removeRedundant();
+			
+			if (system.getEqSystem().isEmpty()) {
+				break;
+			}
 			// create new equation
 			createNewEquationAndSubstitute();
 
-			system.printEquationSystem();
+			//system.printEquationSystem();;
 		}
 
 		// resolve substitutions
-		Map<Integer, Integer> solution = new HashMap<>(system.getNumOfVars());
 		Map<Integer, Equation> substitutions = system.getSubstitutions();
-
-		/*
-		 * // get direct solutions, like x4 = 0 for (int index : substitutions.keySet())
-		 * { Equation equation = substitutions.get(index);
-		 * 
-		 * if (equation.getVars().size() == 1) { int coeff =
-		 * equation.getVars().get(index); if (equation.getRhs() % coeff != 0) { throw
-		 * new UnsolvableException(); } solution.put(index, equation.getRhs() / coeff);
-		 * 
-		 * } }
-		 * 
-		 */
 
 		boolean changed = false;
 		do {
-			changed = false;
-			for (int index : substitutions.keySet()) {
-				Equation equation = substitutions.get(index);
 
+			changed = false;
+			for (int index = 1; index <= system.getNumOfVars(); index++) {
+				Equation equation = substitutions.get(index);
+				
+				if (equation == null) {
+					//set value arbitrarily
+					equation = new Equation(index, 1, 0);
+					substitutions.put(index, equation);
+				}
 				if (equation.getVars().size() == 1) {
 					continue;
 				}
@@ -67,13 +64,38 @@ public class Solver {
 				
 				for (int usedVar : usedVars) {
 					Equation usedEquation = substitutions.get(usedVar);
+					if (usedEquation == null) {
+						usedEquation = new Equation(usedVar, 1, 0);
+						substitutions.put(usedVar, usedEquation);
+					}
 					equation.substitute(usedEquation, usedVar);
 				}
 			}
 		} while (changed);
 
-		System.out.println();
+		int[] result = new int[system.getNumOfVars()];
+		
+		for (int i = 0; i < result.length; i++) {
+			Equation eq = substitutions.get(i + 1);
+			result[i] = eq.getRhs() * eq.getVars().get(i + 1); //coefficient is +1 or -1
+		}
+		
+		return result;
 
+	}
+	
+	private void removeRedundant() {
+		Set<Equation> set = new HashSet<>();
+		
+		for (Equation eq : system.getEqSystem()) {
+			if (eq.getVars().isEmpty()) {
+				set.add(eq);
+			}
+		}
+		
+		for (Equation eq : set) {
+			system.getEqSystem().remove(eq);
+		}
 	}
 
 	private boolean reduce() throws UnsolvableException {
@@ -84,6 +106,9 @@ public class Solver {
 		Equation equation = null;
 		int index = 0;
 		outer: for (Equation eq : system.getEqSystem()) {
+			if (eq.getVars().isEmpty()) {
+				continue;
+			}
 			if (eq.getVars().keySet().size() == 1) {
 				// found equation with only one variable on left hand side
 				equation = eq;
@@ -105,8 +130,8 @@ public class Solver {
 			return false;
 		}
 
-		System.out.println("found equation for substitution");
-		System.out.println(equation.toString() + "\n");
+		//System.out.println("found equation for substitution");
+		//System.out.println(equation.toString() + "\n");
 
 		// substitute this equation into all others and remove equation from system.
 		system.getEqSystem().remove(equation);
@@ -121,22 +146,20 @@ public class Solver {
 			eq.substitute(equation, index);
 		}
 
-		System.out.println("resulting equation system after substitution");
-		system.printEquationSystem();
+		//System.out.println("resulting equation system after substitution");
+		//system.printEquationSystem();
 
 		return true;
 
 	}
 
-	private void createNewEquationAndSubstitute() {
+	private void createNewEquationAndSubstitute() throws UnsolvableException {
 		// take first equation
 		if (system.getEqSystem().isEmpty()) {
 			return;
 		}
 
-		if (eq == null) {
-			eq = system.getEqSystem().get(0);
-		}
+		Equation eq = system.getEqSystem().get(0);
 		Equation equation = new Equation();
 
 		// find variable with minimal coefficient
@@ -167,18 +190,18 @@ public class Solver {
 
 		system.addEquationWithNewVar(index, m, equation);
 
-		System.out.println("created new equation");
-		System.out.println(equation.toString());
-		System.out.println();
+		//System.out.println("created new equation");
+		//System.out.println(equation.toString());
+		//System.out.println();
 
 		// substitute equation into all others
 		for (Equation other : system.getEqSystem()) {
 			other.substitute(equation, index);
 		}
 
-		System.out.println("system after substitution");
-		system.printEquationSystem();
-		System.out.println("------------\n");
+		//System.out.println("system after substitution");
+		//system.printEquationSystem();
+		//System.out.println("------------\n");
 	}
 
 	public int mod(int a, int b) {

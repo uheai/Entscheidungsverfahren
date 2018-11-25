@@ -5,12 +5,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class EquationSystem {
 
@@ -32,7 +29,7 @@ public class EquationSystem {
 	
 	public EquationSystem(String path) throws IOException, UnsolvableException {
 		File file = new File(path);
-		System.out.println(System.getProperty("user.dir"));
+		//System.out.println(System.getProperty("user.dir"));
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		readFile(reader);
 		reader.close();
@@ -109,9 +106,9 @@ public class EquationSystem {
 
 		int rightSide = equation[equation.length - 1];
 
-		System.out.println("got equation");
-		printEquation(equation);
-		System.out.println();
+		//System.out.println("got equation");
+		//printEquation(equation);
+		//System.out.println();
 
 		while (i < equation.length - 1 && equation[i] == 0) {
 			i++;
@@ -135,7 +132,7 @@ public class EquationSystem {
 			gcd = computeGCD(gcd, num);
 		}
 
-		System.out.println("gcd = " + gcd + "\n");
+		//System.out.println("gcd = " + gcd + "\n");
 
 		// right hand side has to be multiple of gcd
 		if (rightSide % gcd != 0) {
@@ -149,10 +146,10 @@ public class EquationSystem {
 			}
 
 
-			System.out.println("normalized equation");
-			printEquation(equation);
+			//System.out.println("normalized equation");
+			//printEquation(equation);
 		}
-		System.out.println("---------\n");
+		//System.out.println("---------\n");
 
 	}
 
@@ -190,7 +187,7 @@ public class EquationSystem {
 		StringBuilder builder = new StringBuilder();
 
 		// first line
-		//builder.append(numOfEquations + " " + numOfVars + "\n");
+		builder.append(numOfEquations + " " + numOfVars + "\n");
 
 		for (Equation eqation : eqSystem) {
 			builder.append(eqation.toString()).append("\n");
@@ -199,19 +196,16 @@ public class EquationSystem {
 		System.out.println(builder.toString());
 	}
 	
-
 	public void printEquation(int[] equation) {
-		StringBuilder builder = new StringBuilder();
-
-		for (int i = 0; i < numOfVars; i++) {
-			builder.append(equation[i]).append(" ");
-		}
-
-		builder.append(" = ");
-		builder.append(equation[numOfVars]);
-
-		System.out.println(builder.toString());
-	}
+				StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < numOfVars; i++) {
+					builder.append(equation[i]).append(" ");
+				}
+				builder.append(" = ");
+				builder.append(equation[numOfVars]);
+				System.out.println(builder.toString());
+			}
+	
 	
 	public List<Equation> getEqSystem() {
 		return eqSystem;

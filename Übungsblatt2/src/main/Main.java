@@ -4,13 +4,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class Main {
-
-	public static final String path = "./lin-eq-ex/ex-5-5-1.leq";
 	
 	public static void main(String[] args) throws IOException {
 		
 		EquationSystem system = null;
 		
+		String path = args[0];
 		try {
 			system = new EquationSystem(path);
 		} catch (FileNotFoundException e) {
@@ -21,14 +20,26 @@ public class Main {
 			System.exit(-1);
 		}
 		
-		system.printEquationSystem();
+		//system.printEquationSystem();
 		
 		Solver solver = new Solver(system);
+		
+		int[] result = null;
 		try {
-			solver.solve();
+			result = solver.solve();
 		} catch (UnsolvableException e) {
-			System.err.println("System not solvable");
+			System.out.println("UNSAT");
+			System.exit(0);
 		}
+		
+		System.out.println("SAT");
+		for (int i = 0; i < result.length - 1; i++) {
+			System.out.print(result[i] + " ");
+		}
+		
+		System.out.println(result[result.length - 1]);
+		
+		
 		
 	}
 	
