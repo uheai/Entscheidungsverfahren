@@ -91,6 +91,10 @@ public class EquationSystem {
 		}
 	}
 	
+	/**
+	 * substitute equations like x4 = 5 into all others.
+	 * @throws UnsolvableException if equation is not solvable, 4x = 5
+	 */
 	private void substitueSolutions() throws UnsolvableException {
 		for (int index : substitutions.keySet()) {
 			for (Equation eq : eqSystem) {
@@ -99,6 +103,11 @@ public class EquationSystem {
 		}
 	}
 
+	/**
+	 * compute gcd of coefficients of left hand side and divide all values by it.
+	 * @param equation
+	 * @throws UnsolvableException
+	 */
 	private void normalize(int[] equation) throws UnsolvableException {
 
 		int i = 0;
@@ -176,6 +185,13 @@ public class EquationSystem {
 		substitutions.put(index, eq);
 	}
 	
+	/**
+	 * create new variable and new equation. If v is new variable resulting equation
+	 * will be eq - m * v
+	 * @param index for which varible is this substitution for
+	 * @param m modulus
+	 * @param eq part of equation without new variable
+	 */
 	public void addEquationWithNewVar(int index, int m, Equation eq) {
 		eq.addVariable(nextFreeIndex, -m);
 		substitutions.put(index, eq);

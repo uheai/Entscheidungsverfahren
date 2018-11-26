@@ -16,7 +16,7 @@ public class Solver {
 		while (system.getEqSystem().size() > 0) {
 			
 			
-			// reduce equation system
+			// reduce equation system, find "simple" equations and substitute them into others
 			boolean changed = false;
 			do {
 				changed = reduce();
@@ -36,6 +36,8 @@ public class Solver {
 		// resolve substitutions
 		Map<Integer, Equation> substitutions = system.getSubstitutions();
 
+		
+		//perform some sort of fix point iteration. Substitute equations into each other until solution is found.
 		boolean changed = false;
 		do {
 
@@ -84,6 +86,9 @@ public class Solver {
 
 	}
 	
+	/**
+	 * eliminates equation like 0 = 0
+	 */
 	private void removeRedundant() {
 		Set<Equation> set = new HashSet<>();
 		
@@ -204,6 +209,12 @@ public class Solver {
 		//System.out.println("------------\n");
 	}
 
+	/**
+	 * computes modulus as described in slides.
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	public int mod(int a, int b) {
 		return a - b * ((int) Math.floor((double) a / b + 0.5));
 	}
