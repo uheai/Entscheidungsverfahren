@@ -75,10 +75,6 @@ public class BitBlasterMul {
 	}
 	
 	private void createSumOfShiftClauses() throws IOException {
-		if (shiftClauses.size() < 2) {
-			return;
-		}
-		
 		int[] sum = shiftClauses.get(0);
 		
 		for (int i = 1; i < shiftClauses.size(); i++) {
@@ -93,7 +89,7 @@ public class BitBlasterMul {
 		int[] carry = newVarArr(2 * n); 
 		int[] out = newVarArr(2 * n);
 		
-		this.out.write(carry[0] + " 0\n"); //inital carry is constant
+		this.out.write(-1 * carry[0] + " 0\n"); //inital carry is constant
 		numOfClauses++;
 		
 
@@ -104,27 +100,27 @@ public class BitBlasterMul {
 			int res = out[i];
 			
 			//clauses for result, ie sum of a and b
-			appendClause(-a, -b, -c, -res);
-			appendClause(-a, b, -c, res);
-			appendClause(a, -b, -c, res);
-			appendClause(a, b, -c, -res);
-			appendClause(-a, -b, c, res);
-			appendClause(-a, b, c, -res);
-			appendClause(a, -b, c, -res);
-			appendClause(a, b, c, res);
+			appendClause(-a, -b, -c, res);
+			appendClause(-a, b, -c, -res);
+			appendClause(a, -b, -c, -res);
+			appendClause(a, b, -c, res);
+			appendClause(-a, -b, c, -res);
+			appendClause(-a, b, c, res);
+			appendClause(a, -b, c, res);
+			appendClause(a, b, c, -res);
 			
 			//clauses for carry
 			if (i < 2 * n - 1) {
 				int nextCary = carry[i + 1];
 				
-				appendClause(-a, -b, -res, -nextCary);
+				appendClause(-a, -b, -res, nextCary);
 				appendClause(-a, b, -res, -nextCary);
 				appendClause(a, -b, -res, -nextCary);
-				appendClause(a, b, -res, nextCary);
-				appendClause(-a, -b, res, -nextCary);
+				appendClause(a, b, -res, -nextCary);
+				appendClause(-a, -b, res, nextCary);
 				appendClause(-a, b, res, nextCary);
 				appendClause(a, -b, res, nextCary);
-				appendClause(a, b, res, nextCary);
+				appendClause(a, b, res, -nextCary);
 			}
 			
 		}
