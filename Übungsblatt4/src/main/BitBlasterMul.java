@@ -4,21 +4,28 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class BitBlasterMul {
 	
-	private int n; //array length
+	/**
+	 * number of bits needed to represent a and b
+	 */
+	private int n;
 	private int[] a;
 	private int[] b;
 	
+	/**
+	 * next free variable
+	 */
 	private int var_index;
 	
 	private BufferedWriter out;
 	private int numOfClauses;
 	
+	/**
+	 * clauses resulting from an shift operation
+	 */
 	private List<int[]> shiftClauses;
 	
 	public BitBlasterMul(int a, int b, BufferedWriter out) throws IOException {
@@ -34,17 +41,19 @@ public class BitBlasterMul {
 		setArray(this.b, b);
 		
 		shiftClauses = new ArrayList<>();
-		
-		//System.out.println(Arrays.toString(this.a));
-		//System.out.println(Arrays.toString(this.b));
 	}
 	
 	public void makeFormula() throws IOException {
 		createShiftClauses();
 		createSumOfShiftClauses();
-		System.out.println("\nnumber of clauses = " + numOfClauses);
+		System.out.println("number of clauses = " + numOfClauses);
 	}
 	
+	/**
+	 * set {@link #n} to smallest integer such that a,b <= 2^n
+	 * @param a factor
+	 * @param b factor
+	 */
 	private void setLength(int a, int b) {
 		n = 0;
 		int max = Math.max(a, b);
@@ -53,9 +62,15 @@ public class BitBlasterMul {
 			n++;
 		}
 		
-		System.out.println("n = " + n);
+		//System.out.println("n = " + n);
 	}
 	
+	/**
+	 * create bit representation for given array
+	 * @param arr target of bit representation
+	 * @param x value to set
+	 * @throws IOException 
+	 */
 	private void setArray(int[] arr, int x) throws IOException {
 		for (int i = 0; i < n; i++) {
 			int bit = (x >> i) % 2;
@@ -66,6 +81,10 @@ public class BitBlasterMul {
 		}
 	}
 	
+	/**
+	 * shift {@link #a} by bits set in {@link #b}
+	 * @throws IOException
+	 */
 	private void createShiftClauses() throws IOException {
 		for (int i = 0; i < n; i++) {
 			if (b[i] > 0) {
@@ -74,6 +93,10 @@ public class BitBlasterMul {
 		}
 	}
 	
+	/**
+	 * create clauses describing sum of created clauses in {@link #createShiftClauses()}
+	 * @throws IOException
+	 */
 	private void createSumOfShiftClauses() throws IOException {
 		int[] sum = shiftClauses.get(0);
 		
@@ -81,10 +104,17 @@ public class BitBlasterMul {
 			sum = createSumOfShiftClauses(sum, shiftClauses.get(i));
 		}
 		
-		System.out.println("vars containing result: " + Arrays.toString(sum));
+		System.out.println("variables containing result: " + Arrays.toString(sum));
 		
 	}
 	
+	/**
+	 * create clause describing sum of given arrays
+	 * @param arr1
+	 * @param arr2
+	 * @return clause containing result variables
+	 * @throws IOException
+	 */
 	private int[] createSumOfShiftClauses(int[] arr1, int[] arr2) throws IOException {
 		int[] carry = newVarArr(2 * n); 
 		int[] out = newVarArr(2 * n);
@@ -128,11 +158,26 @@ public class BitBlasterMul {
 		return out;
 	}
 	
+	/**
+	 * Helper method used in {@link #createSumOfShiftClauses(int[], int[])}.
+	 * Appends clause to file
+	 * @param a
+	 * @param b
+	 * @param c
+	 * @param out
+	 * @throws IOException
+	 */
 	private void appendClause(int a, int b, int c, int out) throws IOException {
 		this.out.write(a + " " + b + " " + c + " " + out + " 0\n");
 		numOfClauses++;
 	}
 	
+	/**
+	 * shift arr by c
+	 * @param arr
+	 * @param c
+	 * @throws IOException
+	 */
 	private void createSingleShiftClause(int[] arr, int c) throws IOException {
 		int[] shifted = newVarArr(2 * n);
 		shiftClauses.add(shifted);
@@ -152,7 +197,14 @@ public class BitBlasterMul {
 		}
 	}
 	
+	/**
+	 * add cnf clauses for x <-> y
+	 * @param x
+	 * @param y
+	 * @throws IOException
+	 */
 	private void addEquivClause(int x, int y) throws IOException {
+		//both variables need to have same sign
 		int a = Math.abs(x);
 		int b = Math.abs(y);
 		out.append(-a + " " + b + " 0\n");
@@ -160,6 +212,11 @@ public class BitBlasterMul {
 		numOfClauses += 2;
 	}
 	
+	/**
+	 * create array containing new positive variables
+	 * @param length length of array to create
+	 * @return
+	 */
 	private int[] newVarArr(int length) {
 		int[] arr = new int[length];
 		for (int i = 0; i < length; i++) {
