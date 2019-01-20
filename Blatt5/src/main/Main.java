@@ -24,11 +24,17 @@ public class Main {
 		hensel.derive();
 		Set<Integer> solution = hensel.solve();
 		
-		if (solution == null) {
+		if (solution.isEmpty()) {
 			System.out.println("UNSAT");
 		} else {
+			int pow = (int) Math.pow(2, k);
 			for (int x : solution) {
-				System.out.println(x);
+				//output positive solution
+				int s = x;
+				while (s < 0) {
+					s += pow;
+				}
+				System.out.println(s);
 			}
 		}
 	}

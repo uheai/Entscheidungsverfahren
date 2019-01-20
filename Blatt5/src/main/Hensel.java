@@ -1,8 +1,6 @@
 package main;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Hensel {
@@ -29,10 +27,6 @@ public class Hensel {
 		deriv = new Hensel(k, deriv_arr);
 	}
 
-	public Hensel getDeriv() {
-		return deriv;
-	}
-
 	public int eval(int x) {
 		int res = 0;
 		for (int i = 0; i < coeff.length; i++) {
@@ -46,6 +40,10 @@ public class Hensel {
 		return deriv.eval(x);
 	}
 
+	/**
+	 * solve equation using hensel algorithm
+	 * @return set of solutions
+	 */
 	public Set<Integer> solve() {
 		HashSet<Integer> result = new HashSet<>();
 
@@ -58,7 +56,7 @@ public class Hensel {
 		}
 
 		if (result.isEmpty()) {
-			return null; // no solution
+			return result; // no solution
 		}
 
 		// lift
@@ -85,6 +83,10 @@ public class Hensel {
 		}
 		
 		return result;
+	}
+	
+	public Hensel getDeriv() {
+		return deriv;
 	}
 
 	@Override
