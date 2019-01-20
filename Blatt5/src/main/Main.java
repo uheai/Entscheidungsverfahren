@@ -6,7 +6,14 @@ public class Main {
 
 	public static void main(String[] args) {
 
+		
 		int n = args.length;
+		
+		if (args.length < 2) {
+			System.err.println("Error: invalid number of arguments. Enter at least 2");
+			System.exit(0);
+		}
+		
 		int k = 0;
 		int[] arr = new int[n - 1];
 
@@ -16,7 +23,7 @@ public class Main {
 				arr[n - 1 - i] = Integer.parseInt(args[i]);
 			}
 		} catch (NumberFormatException e) {
-			System.err.println("Invalid input");
+			System.err.println("Error: Invalid input. At least parameter is not an integer");
 			System.exit(0);
 		}
 		
